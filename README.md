@@ -13,7 +13,7 @@ Incicador Principal
 ![](https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/Dashboard.jpg)
 
 
-<p>Pregunta 1<br />
+<b>Pregunta 1</b><br />
 Esta pregunta busca darle un seguimiento mensual para la cantidad promedio de apuestas por persona
 ![](https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/Pregunta1.jpg)
 
