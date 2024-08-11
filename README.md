@@ -3,5 +3,9 @@
 
 ![](https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/Pantalla%20Inicio.jpg)
 
+![](https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/Pantalla%20Caso.jpg)
+
+![](https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/Pantalla%20Indicadores.jpg)
+
 ![](https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/PUCP-convenio.jpg)
 
