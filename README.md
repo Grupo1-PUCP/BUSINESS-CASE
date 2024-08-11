@@ -12,6 +12,8 @@ Explicacion del Indicador Principal
 Incicador Principal
 ![](https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/Dashboard.jpg)
 
+
+Pregunta1
 Esta pregunta busca encontrar una estacionalidad en el indicador principal
 ![](https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/Pregunta1.jpg)
 
