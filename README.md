@@ -1,4 +1,4 @@
-# BUSINESS-CASE G1 -CASA DE APUESTAS
+<h1># BUSINESS-CASE G1 -CASA DE APUESTAS</h1>
 
 Nombre del proyecto e integrantes
 ![](https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/Pantalla%20Inicio.jpg)
@@ -13,7 +13,7 @@ Incicador Principal
 ![](https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/Dashboard.jpg)
 
 
-Pregunta 1<br />
+<p>Pregunta 1<br />
 Esta pregunta busca darle un seguimiento mensual para la cantidad promedio de apuestas por persona
 ![](https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/Pregunta1.jpg)
 
