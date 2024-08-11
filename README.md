@@ -9,7 +9,7 @@
 <b>Explicacion del Indicador Principal</b>
 ![](https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/Pantalla%20Indicadores.jpg)
 
-<b>Incicador Principal</b>
+<b>Incicador Principal: Cantidad Promedio de Apuestas por Persona</b>
 ![](https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/Dashboard.jpg)
 
 
