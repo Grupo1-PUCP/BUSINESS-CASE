@@ -64,4 +64,4 @@ Esta pregunta busca encontrar los paises con mayor cantidad promedio de apuestas
 
 
 ![](https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/PUCP-convenio.jpg)<br />
-<img scr="https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/PUCP-convenio.jpg" width="500">
+<img scr=https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/PUCP-convenio.jpg width="500">
