@@ -1,4 +1,4 @@
-<h1># BUSINESS-CASE G1 -CASA DE APUESTAS</h1>
+<h1> BUSINESS-CASE G1 -CASA DE APUESTAS</h1>
 
 <b>Nombre del proyecto e integrantes</b>
 ![](https://github.com/Grupo1-PUCP/BUSINESS-CASE/blob/main/Pantalla%20Inicio.jpg)
