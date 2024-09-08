@@ -1,4 +1,5 @@
 Pregunta 1
+¿Cuál es el mes que tiene la mayor cantidad promedio de apuestas por usuario, por mes, dentro de los 5 primeros meses de 2024?
 
 SELECT 
     Año,
@@ -31,6 +32,7 @@ Promedio_Apuestas_Por_Usuario DESC
 
 
 Pregunta 2
+¿Cuál es el día de la semana con mayor cantidad promedio de apuestas por usuario en los 5 primeros meses de 2024?
 
 SET LANGUAGE Spanish;
 
@@ -72,6 +74,7 @@ ORDER BY
 
 
 Pregunta 3
+¿Cuál es el top 5 de deportes con mayor cantidad promedio de apuestas por usuario en los 5 primeros meses de 2024?
 
 WITH ApuestasPorUsuarioYDeporte AS (
     SELECT 
@@ -125,6 +128,7 @@ WHERE
 
 
 Pregunta 4
+¿Cuál de los dos géneros tiene mayor cantidad promedio de apuestas por usuario en los 5 primeros meses de 2024?
 
 SELECT 
     genero,
@@ -151,6 +155,7 @@ GROUP BY
 
 
 Pregunta 5
+¿Cuál es el ranking de rango de edades de cantidad de apuestas por usuario y el monto total apostado en los 5 primeros meses del año 2024?
 
 WITH RangoEdad AS (
     SELECT 
@@ -214,6 +219,7 @@ ORDER BY
 
 
 Pregunta 6
+¿Cuál es el top 3 de competiciones con la mayor y menor cantidad de apuestas promedio por usuario en los 5 primeros meses de 2024?
 
 WITH ApuestasPorUsuarioYCompeticion AS (
     SELECT 
@@ -281,6 +287,7 @@ ORDER BY
 
 
 Pregunta 7:
+¿Cuáles son las 5 categorías de cuotas que cuentan con mayor promedio de apuestas por usuario, por mes, en los 5 primeros meses de 2024?
 
 WITH CategorizadoPorMes AS (
     SELECT
@@ -316,6 +323,7 @@ ORDER BY
 
 
 Pregunta 8;
+¿Cúal es el porcentaje mensual de apuestas realizadas con bono sobre el total de apuestas en los primeros 5 meses de 2024?
 
 SELECT
 	month(grupo01.Apuestas.fecha_apuesta) as Mes,
@@ -332,6 +340,7 @@ GROUP BY
 
 
 Pregunta 9
+¿Cuál de las dos tipos de apuestas (simple o combinada) tiene mayor cantidad promedio de apuestas por usuario mensual, en los 5 primeros meses de 2024?
 
 WITH PromedioMensualPorTipo AS (
     SELECT
@@ -379,6 +388,7 @@ ORDER BY
 
 
 PREGUNTA 10
+¿Cuál es el ranking de cantidad promedio de apuestas por usuario según su nacionalidad en los primeros 6 meses de 2024?
 
 WITH PromedioPorNacionalidad AS (
     SELECT
