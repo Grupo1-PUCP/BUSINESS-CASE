@@ -1,1 +1,406 @@
+Pregunta 1
+
+SELECT 
+    Año,
+    Mes,
+    CONVERT(DECIMAL(10,1),CONVERT(DECIMAL(10,1),SUM(Conteo_Apuestas))/CONVERT(DECIMAL(10,1),COUNT(id_cliente))) AS Promedio_Apuestas_Por_Usuario
+FROM 
+    (SELECT 
+        id_cliente,
+        DATEPART(YEAR, fecha_apuesta) AS Año,
+        DATEPART(MONTH, fecha_apuesta) AS Mes,
+        COUNT(id_apuesta) AS Conteo_Apuestas
+    FROM 
+        grupo01.Apuestas
+    WHERE 
+        DATEPART(YEAR, fecha_apuesta) = 2024
+        AND DATEPART(MONTH, fecha_apuesta) BETWEEN 1 AND 5
+		AND Inversion='NO'
+    GROUP BY 
+        id_cliente, 
+        DATEPART(YEAR, fecha_apuesta), 
+        DATEPART(MONTH, fecha_apuesta)
+    ) AS Apuestas_Por_Cliente
+GROUP BY 
+    Año,
+    Mes
+ORDER BY 
+Promedio_Apuestas_Por_Usuario DESC
+
+
+
+
+Pregunta 2
+
+SET LANGUAGE Spanish;
+
+WITH Apuestas_Por_Dia_Semana AS (
+    SELECT 
+        id_cliente,
+        DATEPART(WEEKDAY, fecha_apuesta) AS Dia_Semana_Numero,
+        CONCAT(format(DATEPART(WEEKDAY, fecha_apuesta),'00'), '-', DATENAME(WEEKDAY, fecha_apuesta)) AS Dia_Semana,
+        COUNT(id_apuesta) AS Conteo_Apuestas
+    FROM 
+        grupo01.Apuestas
+    WHERE 
+        DATEPART(YEAR, fecha_apuesta) = 2024
+        AND DATEPART(MONTH, fecha_apuesta) BETWEEN 1 AND 5
+        AND Inversion = 'NO'
+    GROUP BY 
+        id_cliente, 
+        DATEPART(WEEKDAY, fecha_apuesta),
+        DATENAME(WEEKDAY, fecha_apuesta)
+),
+Promedio_Apuestas_Por_Dia AS (
+    SELECT 
+        Dia_Semana,
+        CONVERT(DECIMAL(10,1), SUM(Conteo_Apuestas) / CONVERT(DECIMAL(10,1), COUNT(id_cliente))) AS Promedio_Apuestas_Por_Usuario
+    FROM 
+        Apuestas_Por_Dia_Semana
+    GROUP BY 
+        Dia_Semana
+)
+SELECT 
+    Dia_Semana,
+    Promedio_Apuestas_Por_Usuario
+FROM 
+    Promedio_Apuestas_Por_Dia
+ORDER BY 
+    Promedio_Apuestas_Por_Usuario DESC;
+
+
+
+
+Pregunta 3
+
+WITH ApuestasPorUsuarioYDeporte AS (
+    SELECT 
+        d.nombre AS Deporte,
+        a.id_cliente,
+        COUNT(a.id_apuesta) AS Cantidad_Apuestas
+    FROM 
+        grupo01.Apuestas AS a
+    INNER JOIN 
+        grupo01.Apuestas_Detalle AS ad ON a.id_apuesta = ad.id_apuesta
+    INNER JOIN 
+        grupo01.Apuestas_Cuota AS ac ON ad.id_apuesta_cuota = ac.id_apuesta_cuota
+    INNER JOIN 
+        grupo01.Eventos AS e ON ac.id_evento = e.id_evento
+    INNER JOIN 
+        grupo01.Competiciones AS c ON e.id_competicion = c.id_competicion
+    INNER JOIN 
+        grupo01.Deportes AS d ON c.id_deporte = d.id_deporte
+    WHERE 
+        a.fecha_apuesta BETWEEN '2024-01-01' AND '2024-05-31'
+        AND a.Inversion = 'NO'
+    GROUP BY 
+        d.nombre, a.id_cliente
+),
+PromedioApuestasPorDeporte AS (
+    SELECT 
+        Deporte,
+        AVG(CAST(Cantidad_Apuestas AS DECIMAL(10,1))) AS Promedio_Apuestas_Por_Usuario
+    FROM 
+        ApuestasPorUsuarioYDeporte
+    GROUP BY 
+        Deporte
+),
+Top5Deportes AS (
+    SELECT 
+        Deporte,
+        Promedio_Apuestas_Por_Usuario,
+        ROW_NUMBER() OVER (ORDER BY Promedio_Apuestas_Por_Usuario DESC) AS Rango
+    FROM 
+        PromedioApuestasPorDeporte
+)
+SELECT 
+    Deporte,
+    CONVERT(DECIMAL(10,1), Promedio_Apuestas_Por_Usuario) AS Promedio_Apuestas_Por_Usuario
+FROM 
+    Top5Deportes
+WHERE 
+    Rango <= 5;
+
+
+
+
+Pregunta 4
+
+SELECT 
+    genero,
+    CONVERT(DECIMAL(10,1), AVG(CAST(Total_Apuestas_Por_Usuario AS FLOAT)) / 5) AS Promedio_Apuestas_Total_5_Meses
+FROM (
+    SELECT 
+        cli.genero,
+        a.id_cliente,
+        COUNT(a.id_apuesta) AS Total_Apuestas_Por_Usuario
+    FROM 
+        grupo01.Apuestas AS a
+    INNER JOIN 
+        grupo01.Clientes AS cli ON a.id_cliente = cli.id_cliente
+    WHERE 
+        a.fecha_apuesta BETWEEN '2024-01-01' AND '2024-05-31'
+        AND a.Inversion = 'NO'
+    GROUP BY 
+        cli.genero, a.id_cliente
+) AS ApuestasPorUsuarioYGenero
+GROUP BY 
+    genero;
+
+
+
+
+Pregunta 5
+
+WITH RangoEdad AS (
+    SELECT 
+        id_cliente,
+        CASE 
+            WHEN DATEDIFF(YEAR, fecha_nacimiento, GETDATE()) BETWEEN 18 AND 25 THEN '18-25'
+            WHEN DATEDIFF(YEAR, fecha_nacimiento, GETDATE()) BETWEEN 26 AND 35 THEN '26-35'
+            WHEN DATEDIFF(YEAR, fecha_nacimiento, GETDATE()) BETWEEN 36 AND 45 THEN '36-45'
+            WHEN DATEDIFF(YEAR, fecha_nacimiento, GETDATE()) BETWEEN 46 AND 55 THEN '46-55'
+            ELSE '56+'
+        END AS Rango_Edad
+    FROM 
+        grupo01.Clientes
+),
+ApuestasPorUsuarioYEdad AS (
+    SELECT 
+        r.Rango_Edad,
+        a.id_cliente,
+        COUNT(a.id_apuesta) AS Cantidad_Apuestas,
+        SUM(a.monto_apostado) AS Monto_Total_Apostado
+    FROM 
+        grupo01.Apuestas AS a
+    INNER JOIN 
+        RangoEdad AS r ON a.id_cliente = r.id_cliente
+    WHERE 
+        a.fecha_apuesta BETWEEN '2024-01-01' AND '2024-05-31'
+		AND a.Inversion='NO'
+    GROUP BY 
+        r.Rango_Edad, a.id_cliente
+),
+ApuestasPorEdad AS (
+    SELECT 
+        Rango_Edad,
+        SUM(Cantidad_Apuestas) AS Total_Apuestas,
+        SUM(Monto_Total_Apostado) AS Monto_Total_Apostado
+    FROM 
+        ApuestasPorUsuarioYEdad
+    GROUP BY 
+        Rango_Edad
+),
+RankingRangoEdad AS (
+    SELECT 
+        Rango_Edad,
+        Total_Apuestas,
+        Monto_Total_Apostado,
+        ROW_NUMBER() OVER (ORDER BY Total_Apuestas DESC) AS Rango
+    FROM 
+        ApuestasPorEdad
+)
+SELECT 
+    Rango,
+    Rango_Edad,
+    Total_Apuestas,
+    Monto_Total_Apostado
+FROM 
+    RankingRangoEdad
+ORDER BY 
+    Rango;
+
+
+
+
+Pregunta 6
+
+WITH ApuestasPorUsuarioYCompeticion AS (
+    SELECT 
+        c.nombre AS Competicion,
+        a.id_cliente,
+        COUNT(a.id_apuesta) AS Cantidad_Apuestas
+    FROM 
+        grupo01.Apuestas AS a
+    INNER JOIN 
+        grupo01.Apuestas_Detalle AS ad ON a.id_apuesta = ad.id_apuesta
+    INNER JOIN 
+        grupo01.Apuestas_Cuota AS ac ON ad.id_apuesta_cuota = ac.id_apuesta_cuota
+    INNER JOIN 
+        grupo01.Eventos AS e ON ac.id_evento = e.id_evento
+    INNER JOIN 
+        grupo01.Competiciones AS c ON e.id_competicion = c.id_competicion
+    WHERE 
+        a.fecha_apuesta BETWEEN '2024-01-01' AND '2024-05-31'
+		AND a.Inversion='NO'
+    GROUP BY 
+        c.nombre, a.id_cliente
+),
+PromedioApuestasPorCompeticion AS (
+    SELECT 
+        Competicion,
+        cast(AVG(cast(Cantidad_Apuestas as decimal(10,1))) as decimal(10,1)) AS Promedio_Apuestas_Por_Usuario
+    FROM 
+        ApuestasPorUsuarioYCompeticion
+    GROUP BY 
+        Competicion
+),
+Top3MayorYMenor AS (
+    SELECT 
+        Competicion,
+        Promedio_Apuestas_Por_Usuario,
+        ROW_NUMBER() OVER (ORDER BY Promedio_Apuestas_Por_Usuario DESC) AS Rango_Mayor,
+        ROW_NUMBER() OVER (ORDER BY Promedio_Apuestas_Por_Usuario ASC) AS Rango_Menor
+    FROM 
+        PromedioApuestasPorCompeticion
+)
+SELECT 
+    'Mayor' AS Tipo,
+    Competicion,
+    Promedio_Apuestas_Por_Usuario
+FROM 
+    Top3MayorYMenor
+WHERE 
+    Rango_Mayor <= 3
+
+UNION ALL
+
+SELECT 
+    'Menor' AS Tipo,
+    Competicion,
+    Promedio_Apuestas_Por_Usuario
+FROM 
+    Top3MayorYMenor
+WHERE 
+    Rango_Menor <= 3
+ORDER BY 
+    Tipo, Promedio_Apuestas_Por_Usuario DESC;
+
+
+
+
+
+Pregunta 7:
+
+WITH CategorizadoPorMes AS (
+    SELECT
+        month(grupo01.Apuestas.fecha_apuesta) AS Mes,
+        grupo01.Apuestas_Cuota.categoria_cuota,
+        cast(COUNT(cast(grupo01.Apuestas_Detalle.id_apuesta_detalle as decimal(10,1))) / cast(COUNT(DISTINCT grupo01.Apuestas.id_cliente) as decimal(10,1)) as decimal(10,1)) AS Promedio,
+        ROW_NUMBER() OVER (PARTITION BY month(grupo01.Apuestas.fecha_apuesta) ORDER BY COUNT(grupo01.Apuestas_Detalle.id_apuesta_detalle) / COUNT(DISTINCT grupo01.Apuestas.id_cliente) DESC) AS Rango
+    FROM
+        grupo01.Apuestas_Detalle
+    JOIN
+        grupo01.Apuestas ON grupo01.Apuestas_Detalle.id_apuesta = grupo01.Apuestas.id_apuesta
+    JOIN 
+        grupo01.Apuestas_Cuota ON grupo01.Apuestas_Cuota.id_apuesta_cuota = grupo01.Apuestas_Detalle.id_apuesta_cuota
+    WHERE
+        grupo01.Apuestas.Inversion = 'NO' 
+        AND grupo01.Apuestas.fecha_apuesta BETWEEN '2024-01-01' AND '2024-05-31'
+    GROUP BY
+        month(grupo01.Apuestas.fecha_apuesta),
+        grupo01.Apuestas_Cuota.categoria_cuota
+)
+SELECT 
+    Mes,
+    categoria_cuota,
+    Promedio
+FROM 
+    CategorizadoPorMes
+WHERE 
+    Rango <= 5
+ORDER BY 
+    Mes ASC, Promedio DESC;
+
+
+
+
+Pregunta 8;
+
+SELECT
+	month(grupo01.Apuestas.fecha_apuesta) as Mes,
+	CONCAT(cast((COUNT(CASE WHEN grupo01.Apuestas.id_bonoxcliente <> 0 THEN 1 END) * 100.0) / COUNT(grupo01.Apuestas.id_apuesta) as DECIMAL(10,1)),'%')as Porcentaje
+FROM
+	grupo01.Apuestas
+WHERE
+	grupo01.Apuestas.Inversion = 'NO' AND
+	grupo01.Apuestas.fecha_apuesta BETWEEN '2024-01-01' AND '2024-05-31'
+GROUP BY
+	month(grupo01.Apuestas.fecha_apuesta);
+
+
+
+
+Pregunta 9
+
+WITH PromedioMensualPorTipo AS (
+    SELECT
+        DATENAME(MONTH, fecha_apuesta) AS Mes,
+        DATEPART(MONTH, fecha_apuesta) AS MesNumero,
+        tipo_apuesta AS Tipo_Apuesta,
+        cast(COUNT(id_apuesta)* 1.0/ COUNT(DISTINCT id_cliente) as decimal(10,1))AS Promedio_apuesta_de_usuario
+    FROM
+        grupo01.Apuestas
+    WHERE
+        Inversion = 'NO'
+        AND fecha_apuesta BETWEEN '2024-01-01' AND '2024-05-31'
+    GROUP BY
+        tipo_apuesta,
+        DATENAME(MONTH, fecha_apuesta),
+        DATEPART(MONTH, fecha_apuesta)
+),
+MaxPromedioPorMes AS (
+    SELECT
+        Mes,
+        MesNumero,
+        MAX(Promedio_apuesta_de_usuario) AS Maximo_Promedio
+    FROM
+        PromedioMensualPorTipo
+    GROUP BY
+        Mes,
+        MesNumero
+)
+SELECT
+    p.Mes,
+    p.Tipo_Apuesta,
+    p.Promedio_apuesta_de_usuario
+FROM
+    PromedioMensualPorTipo p
+JOIN
+    MaxPromedioPorMes m
+ON
+    p.Mes = m.Mes
+    AND p.Promedio_apuesta_de_usuario = m.Maximo_Promedio
+ORDER BY
+    p.MesNumero,
+    p.Promedio_apuesta_de_usuario DESC;
+
+
+
+
+PREGUNTA 10
+
+WITH PromedioPorNacionalidad AS (
+    SELECT
+        c.nacionalidad,
+        cast(COUNT(a.id_apuesta) * 1.0 / COUNT(DISTINCT a.id_cliente)/count(distinct month(a.fecha_apuesta)) as decimal(10,1)) AS Promedio_apuesta_de_usuario
+    FROM
+        grupo01.Apuestas a
+    JOIN
+        grupo01.clientes c ON a.id_cliente = c.id_cliente
+    WHERE
+        a.Inversion = 'NO'
+        AND a.fecha_apuesta BETWEEN '2024-01-01' AND '2024-05-31'
+    GROUP BY
+        c.nacionalidad
+)
+SELECT
+	RANK() OVER (ORDER BY Promedio_apuesta_de_usuario DESC) AS Ranking,
+    nacionalidad,
+    Promedio_apuesta_de_usuario
+FROM
+    PromedioPorNacionalidad
+ORDER BY
+    Ranking;
+
 
